@@ -307,10 +307,11 @@ void movement()
 		//check for collision with shapes...
 		Shape *s = &g.box;
 		if (p->s.center.y < s->center.y + s->height &&
+            p->s.center.y > s->center.y - s->height &&
 			p->s.center.x > s->center.x - s->width &&
 			p->s.center.x < s->center.x + s->width)
-	  		p->velocity.y = - (p->velocity.y * 0.8);
-
+	  		p->velocity.y = - (p->velocity.y * 0.2); //0.# is the bounce factor. 
+                                                     //should make it a const
 		//check for off-screen
 		if (p->s.center.y < 0.0) {
 			//cout << "off screen" << endl;
