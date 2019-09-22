@@ -35,13 +35,20 @@ using namespace std;
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
+#include <string>
 #include <cmath>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include <vector>
 
 const int MAX_PARTICLES = 2000;
+const int BOX_COUNT	= 5;
 const float GRAVITY     = 0.1;
+
+string boxText[] = {"RERQUIREMENTS","DESIGN","IMPLEMENTATION"
+                ,"VERIFICATION","MAINTENANCE"};
+
 
 //some structures
 
@@ -55,7 +62,7 @@ struct Shape {
 	Vec center;
 };
 
-struct Particle {
+struct Particle {	//particles are shapes with velocity
 	Shape s;
 	Vec velocity;
 };
@@ -63,9 +70,9 @@ struct Particle {
 class Global {
 public:
 	int xres, yres;
-	Shape box;
+	Shape box[BOX_COUNT];
 	Particle particle[MAX_PARTICLES];
-	int n;
+	int n,m;
 	Global();
 } g;
 
@@ -87,6 +94,7 @@ public:
 void init_opengl(void);
 void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
+void makeBox(int w, int h, int x, int y, string content);//idk what all this is gonna need
 void movement();
 void render();
 
@@ -97,9 +105,18 @@ void render();
 //=====================================
 int main()
 {
+	string whatever[] = {"RERQUIREMENTS","DESIGN","IMPLEMENTATION"
+		,"VERIFICATION","MAINTENANCE"};
 	srand(time(NULL));
 	init_opengl();
 	//Main animation loop
+	int xOffset = 50;
+	int yOffset = -50;
+	for (int i=0; i<5; i++) {
+		makeBox(100, 10, 100 + xOffset, 600 +  yOffset, boxText[i]);
+		xOffset+=150;
+		yOffset-=100;
+	}
 	int done = 0;
 	while (!done) {
 		//Process external events.
@@ -120,14 +137,15 @@ int main()
 //-----------------------------------------------------------------------------
 Global::Global()
 {
-	xres = 800;
+	xres = 900;
 	yres = 600;
 	//define a box shape
-	box.width = 100;
-	box.height = 10;
-	box.center.x = 120 + 5*65;
-	box.center.y = 500 - 5*60;
+	//box[0].width = 100;
+	//box[0].height = 10;
+	//box[0].center.x = 450; //120 + 5*65;
+	//box[0].center.y = 300;// 500 - 5*60;
 	n = 0;
+	m = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -226,6 +244,23 @@ void makeParticle(int x, int y)
 	++g.n;
 }
 
+void makeBox(int w, int h, int x, int y, string content)
+{
+	if (g.m >= BOX_COUNT) {
+		cout << "makeBox() got called too much" << endl;
+		return;
+	}
+	cout << "makeBox() " << g.m << endl;
+	Shape *s = &g.box[g.m];
+	s->center.x = x;
+	s->center.y = y;
+	s->width = w;
+	s->height = h;
+	++g.m;
+
+	
+}
+
 void check_mouse(XEvent *e)
 {
 	static int savex = 0;
@@ -305,16 +340,23 @@ void movement()
 		p->s.center.y += p->velocity.y;
 		p->velocity.y -= GRAVITY;
 		//check for collision with shapes...
-		Shape *s = &g.box;
-		if (p->s.center.y < s->center.y + s->height &&
-            p->s.center.y > s->center.y - s->height &&
+		for (int j = 0; j<g.m; j++){
+			Shape *s = &g.box[j];
+			if (p->s.center.y < s->center.y + s->height &&
+			p->s.center.y > s->center.y - s->height &&
 			p->s.center.x > s->center.x - s->width &&
-			p->s.center.x < s->center.x + s->width)
-	  		p->velocity.y = - (p->velocity.y * 0.2); //0.# is the bounce factor. 
-                                                     //should make it a const
+			p->s.center.x < s->center.x + s->width){
+	  			p->velocity.y = - (p->velocity.y * 0.3);
+				cout << "                                "
+					<< "bounce" << endl;
+			}
+			if(p->velocity.x < .8)
+				p->velocity.x += .01;	//right drift tendency
+		
+		}
 		//check for off-screen
 		if (p->s.center.y < 0.0) {
-			//cout << "off screen" << endl;
+			cout << "off screen particle destroyed" << endl;
 			g.particle[i] = g.particle[g.n-1];	
 	   	   --g.n;
 		}
@@ -326,30 +368,40 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw shapes...
 	//draw the box
-	Shape *s;
-	glColor3ub(90,140,90);
-	s = &g.box;
-	glPushMatrix();
-	glTranslatef(s->center.x, s->center.y, s->center.z);
 	float w, h;
-	w = s->width;
-	h = s->height;
-	glBegin(GL_QUADS);
-		glVertex2i(-w, -h);
-		glVertex2i(-w,  h);
-		glVertex2i( w,  h);
-		glVertex2i( w, -h);
-	glEnd();
-	glPopMatrix();
+	for(int i=0; i<BOX_COUNT; i++){
+		glPushMatrix();
+		glColor3ub(100,140,100);
+		Shape *s = &g.box[i];
+		glTranslatef(s->center.x, s->center.y, s->center.z);
+		//float w, h;
+		w = s->width;
+		h = s->height;
+		glBegin(GL_QUADS);
+			glVertex2i(-w, -h);
+			glVertex2i(-w,  h);
+			glVertex2i( w,  h);
+			glVertex2i( w, -h);
+		glEnd();
+		glPopMatrix();
+	
+	}
+
+	int ab=1;//bad names for color variabls
+	int bc=1;
+	int cd=1;
 	//
 	//Draw particles here
 	//if (g.n > 0) {
 	for (int i=0; i<g.n; i++){
 		//There is at least one particle to draw.
 		glPushMatrix();
-		glColor3ub(150,160,220);
+		glColor3ub(ab,bc,cd);//funfetti
+		ab++;
+		bc+=2;
+		cd+=3;
 		Vec *c = &g.particle[i].s.center;
-		w = h = 2;
+		w = h = (i%3) +1;	//size variance
 		glBegin(GL_QUADS);
 			glVertex2i(c->x-w, c->y-h);
 			glVertex2i(c->x-w, c->y+h);
