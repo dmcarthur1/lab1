@@ -42,7 +42,7 @@ using namespace std;
 #include <GL/glx.h>
 #include <vector>
 #include "fonts.h"
-const int MAX_PARTICLES = 2000;
+const int MAX_PARTICLES = 999;
 const int BOX_COUNT	= 5;
 const float GRAVITY     = 0.1;
 
@@ -347,12 +347,13 @@ void movement()
 			p->s.center.y > s->center.y - s->height &&
 			p->s.center.x > s->center.x - s->width &&
 			p->s.center.x < s->center.x + s->width){
-	  			p->velocity.y = - (p->velocity.y * 0.3);
-				cout << "                                "
-					<< "bounce" << endl;
+	  			p->velocity.y = - (p->velocity.y * 0.5);
+				p->s.center.y = s->center.y + s->height + 0.2;
+				cout << "bounce" << endl;
+				p->velocity.x += .02;
 			}
-			if(p->velocity.x < .8)
-				p->velocity.x += .01;	//right drift tendency
+		//	if(p->velocity.x < .8)
+				//p->velocity.x += .01;	//right drift tendency
 		
 		}
 		//check for off-screen
@@ -370,9 +371,10 @@ void render()
 	//Draw shapes...
 	//draw the box
 	float w, h;
+	int wx=0, xy=0, yz=0;
 	for(int i=0; i<BOX_COUNT; i++){
 		glPushMatrix();
-		glColor3ub(0,30,30);
+		glColor3ub(200-wx,200-xy,200-yz);
 		Shape *s = &g.box[i];
 		glTranslatef(s->center.x, s->center.y, s->center.z);
 		//float w, h;
@@ -386,12 +388,13 @@ void render()
 		glEnd();
 		Rect r;
 		//r.bot =(int)&g.box[i] ;
-		r.centery = (int)g.box[i].center.y ;
-		r.centerx = (int)g.box[i].center.x;
-		
-		ggprint8b(&r, 40, 0xff000fff,"%s", boxText[i].c_str());
+		r.left = 10; //(int)g.box[i].center.y ;
+		r.center = 0;//(int)g.box[i].center.x;
+		r.bot = g.yres -20;//(int)g.box[i].height;	
+		ggprint8b(&r, 16, 0xfff00000,"TEXT", boxText[i].c_str());
 		glPopMatrix();
-	
+		ggprint8b(&r, 16, 0xfff00000,"TEXT %s %S", boxText[i].c_str());
+		wx=xy=yz+=20;
 	}
 
 	int ab=1;//bad names for color variabls
