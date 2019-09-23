@@ -41,7 +41,7 @@ using namespace std;
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include <vector>
-
+#include "fonts.h"
 const int MAX_PARTICLES = 2000;
 const int BOX_COUNT	= 5;
 const float GRAVITY     = 0.1;
@@ -95,6 +95,7 @@ void init_opengl(void);
 void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void makeBox(int w, int h, int x, int y, string content);//idk what all this is gonna need
+//extern void ggprint8b(Rect *r, int advance, int cref, const char *fmt, ...);
 void movement();
 void render();
 
@@ -105,7 +106,7 @@ void render();
 //=====================================
 int main()
 {
-	string whatever[] = {"RERQUIREMENTS","DESIGN","IMPLEMENTATION"
+	string boxText[] = {"RERQUIREMENTS","DESIGN","CODING"
 		,"VERIFICATION","MAINTENANCE"};
 	srand(time(NULL));
 	init_opengl();
@@ -113,7 +114,7 @@ int main()
 	int xOffset = 50;
 	int yOffset = -50;
 	for (int i=0; i<5; i++) {
-		makeBox(100, 10, 100 + xOffset, 600 +  yOffset, boxText[i]);
+		makeBox(120, 20, 100 + xOffset, 600 +  yOffset, boxText[i]);
 		xOffset+=150;
 		yOffset-=100;
 	}
@@ -371,7 +372,7 @@ void render()
 	float w, h;
 	for(int i=0; i<BOX_COUNT; i++){
 		glPushMatrix();
-		glColor3ub(100,140,100);
+		glColor3ub(0,30,30);
 		Shape *s = &g.box[i];
 		glTranslatef(s->center.x, s->center.y, s->center.z);
 		//float w, h;
@@ -383,6 +384,12 @@ void render()
 			glVertex2i( w,  h);
 			glVertex2i( w, -h);
 		glEnd();
+		Rect r;
+		//r.bot =(int)&g.box[i] ;
+		r.centery = (int)g.box[i].center.y ;
+		r.centerx = (int)g.box[i].center.x;
+		
+		ggprint8b(&r, 40, 0xff000fff,"%s", boxText[i].c_str());
 		glPopMatrix();
 	
 	}
