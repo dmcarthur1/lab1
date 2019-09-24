@@ -46,8 +46,8 @@ const int MAX_PARTICLES = 2000;
 const int BOX_COUNT	= 5;
 const float GRAVITY     = 0.1;
 
-string boxText[] = {"RERQUIREMENTS","DESIGN","IMPLEMENTATION"
-                ,"VERIFICATION","MAINTENANCE"};
+string boxText[] = {"RERQUIREMENTS","DESIGN","CODING"
+                ,"TESTING","MAINTENANCE"};
 
 
 //some structures
