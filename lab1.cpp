@@ -42,7 +42,7 @@ using namespace std;
 #include <GL/glx.h>
 #include <vector>
 #include "fonts.h"
-const int MAX_PARTICLES = 999;
+const int MAX_PARTICLES = 2000;
 const int BOX_COUNT	= 5;
 const float GRAVITY     = 0.1;
 
@@ -107,14 +107,14 @@ void render();
 int main()
 {
 	string boxText[] = {"RERQUIREMENTS","DESIGN","CODING"
-		,"VERIFICATION","MAINTENANCE"};
+		,"TESTING","MAINTENANCE"};
 	srand(time(NULL));
 	init_opengl();
 	//Main animation loop
 	int xOffset = 50;
 	int yOffset = -50;
 	for (int i=0; i<5; i++) {
-		makeBox(120, 20, 100 + xOffset, 600 +  yOffset, boxText[i]);
+		makeBox(120, 20, 100 + xOffset, g.yres -50 + yOffset, boxText[i]);
 		xOffset+=150;
 		yOffset-=100;
 	}
@@ -348,7 +348,7 @@ void movement()
 			p->s.center.x > s->center.x - s->width &&
 			p->s.center.x < s->center.x + s->width){
 	  			p->velocity.y = - (p->velocity.y * 0.5);
-				p->s.center.y = s->center.y + s->height + 0.2;
+				p->s.center.y = s->center.y + s->height + 2;
 				cout << "bounce" << endl;
 				p->velocity.x += .02;
 			}
@@ -367,14 +367,21 @@ void movement()
 
 void render()
 {
+	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
+	r.bot = 600- 20;
+	r.left = 10;
+	r.center = 0;
+	ggprint16(&r, 32, 0x00ff0000, "FUCKING TEXT");
+	
 	//Draw shapes...
 	//draw the box
 	float w, h;
-	int wx=0, xy=0, yz=0;
+	int wx, xy, yz;	//bad names for color variables
+	wx=xy=yz=1;
 	for(int i=0; i<BOX_COUNT; i++){
 		glPushMatrix();
-		glColor3ub(200-wx,200-xy,200-yz);
+		glColor3ub(256-wx,256-xy,256-yz);
 		Shape *s = &g.box[i];
 		glTranslatef(s->center.x, s->center.y, s->center.z);
 		//float w, h;
@@ -386,20 +393,10 @@ void render()
 			glVertex2i( w,  h);
 			glVertex2i( w, -h);
 		glEnd();
-		Rect r;
-		//r.bot =(int)&g.box[i] ;
-		r.left = 10; //(int)g.box[i].center.y ;
-		r.center = 0;//(int)g.box[i].center.x;
-		r.bot = g.yres -20;//(int)g.box[i].height;	
-		ggprint8b(&r, 16, 0xfff00000,"TEXT", boxText[i].c_str());
 		glPopMatrix();
-		ggprint8b(&r, 16, 0xfff00000,"TEXT %s %S", boxText[i].c_str());
-		wx=xy=yz+=20;
+		wx=xy=yz+=63;
 	}
-
-	int ab=1;//bad names for color variabls
-	int bc=1;
-	int cd=1;
+	int ab=10, bc=0, cd=255;	//bad names for color variabls
 	//
 	//Draw particles here
 	//if (g.n > 0) {
@@ -411,7 +408,7 @@ void render()
 		bc+=2;
 		cd+=3;
 		Vec *c = &g.particle[i].s.center;
-		w = h = (i%3) +1;	//size variance
+		w = h =i%3+1;	//size variance
 		glBegin(GL_QUADS);
 			glVertex2i(c->x-w, c->y-h);
 			glVertex2i(c->x-w, c->y+h);
