@@ -5,7 +5,7 @@ LFLAGS = -lX11 -lGL -lGLU -lm
 all: lab1
 
 lab1: lab1.cpp
-	g++ $(CFLAGS) lab1.cpp libggfonts.a -Wall -olab1 $(LFLAGS) #-lX11 -lGL -lGLU -lm 
+	g++ $(CFLAGS) lab1.cpp libggfonts.a -Wall -olab1 $(LFLAGS)
 
 clean:
 	rm -f lab1

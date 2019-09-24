@@ -226,6 +226,9 @@ void init_opengl(void)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//Set the screen background color
 	glClearColor(0.1, 0.1, 0.1, 1.0);
+	//Do this to allow fonts
+	glEnable(GL_TEXTURE_2D);
+	initialize_fonts();
 }
 
 void makeParticle(int x, int y)
@@ -367,13 +370,7 @@ void movement()
 
 void render()
 {
-	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
-	r.bot = 600- 20;
-	r.left = 10;
-	r.center = 0;
-	ggprint16(&r, 32, 0x00ff0000, "FUCKING TEXT");
-	
 	//Draw shapes...
 	//draw the box
 	float w, h;
@@ -395,6 +392,11 @@ void render()
 		glEnd();
 		glPopMatrix();
 		wx=xy=yz+=63;
+		Rect r;
+		r.bot = (int)s->center.y - 8;
+		//r.center = (int)s->center.y;
+		r.left = (int)s->center.x;
+		ggprint16(&r, 16, 0x00ff0000,"%s", boxText[i].c_str());
 	}
 	int ab=10, bc=0, cd=255;	//bad names for color variabls
 	//
