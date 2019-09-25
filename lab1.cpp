@@ -42,7 +42,7 @@ using namespace std;
 #include <GL/glx.h>
 #include <vector>
 #include "fonts.h"
-const int MAX_PARTICLES = 2000;
+const int MAX_PARTICLES = 99999;
 const int BOX_COUNT	= 5;
 const float GRAVITY     = 0.1;
 
@@ -69,7 +69,7 @@ struct Particle {	//particles are shapes with velocity
 
 class Global {
 public:
-	int xres, yres;
+	int xres, yres,mousex,mousey;
 	Shape box[BOX_COUNT];
 	Particle particle[MAX_PARTICLES];
 	int n,m;
@@ -140,6 +140,8 @@ Global::Global()
 {
 	xres = 900;
 	yres = 600;
+	mousex = 0;
+	mousey = 0;
 	//define a box shape
 	//box[0].width = 100;
 	//box[0].height = 10;
@@ -285,12 +287,9 @@ void check_mouse(XEvent *e)
 		if (e->xbutton.button==1) {
 			//Left button was pressed.
 			int y = g.yres - e->xbutton.y;
-			makeParticle(e->xbutton.x, y);
-			makeParticle(e->xbutton.x, y);
-			makeParticle(e->xbutton.x, y);
-			makeParticle(e->xbutton.x, y);
-			makeParticle(e->xbutton.x, y);
-			makeParticle(e->xbutton.x, y);
+			for (int i=0; i<10000; i++){
+				makeParticle(e->xbutton.x, y);
+			}
 			return;
 		}
 		if (e->xbutton.button==3) {
@@ -304,7 +303,8 @@ void check_mouse(XEvent *e)
 			savex = e->xbutton.x;
 			savey = e->xbutton.y;
 			//Code placed here will execute whenever the mouse moves
-			
+			g.mousex = savex;
+			g.mousey = savey;
 			int y= g.yres - e->xbutton.y;
 			  for (int i=0; i<10; i++){
 				makeParticle(e->xbutton.x, y);
@@ -421,8 +421,12 @@ void render()
 	}
 	//
 	//Draw your 2D text here
-
-
+	Rect data;
+	data.bot = g.yres-20;
+	data.left = 10;
+	data.center = 0;
+	ggprint8b(&data,16,0xffffffff, "number of particles %d", g.n);
+	ggprint8b(&data,16,0xffffffff, "mouse position x:%d, y:%d",g.mousex,g.mousey);
 
 
 
